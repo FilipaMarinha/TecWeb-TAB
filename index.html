@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang = "pt">
+<html lang="pt">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,20 +8,22 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
+
 <body>
 
     <!-- Parte de cima -->
-     <header id="logo-area">
+    <header id="logo-area">
         <div class="header-content">
             <div class="logo-section">
                 <img src="LogoPaint_1.png" alt="Logo Tâb" class="logo-img">
             </div>
-            <div id="identification" style="display: flex; justify-content: flex-end; align-items: center; gap: 10px; width: 100%;">
+            <div id="identification"
+                style="display: flex; justify-content: flex-end; align-items: center; gap: 10px; width: 100%;">
                 <button id="signup-button" class="auth-button">Sign Up</button>
                 <button id="login-button" class="auth-button">Log In</button>
             </div>
         </div>
-     </header>
+    </header>
 
     <!-- Main frame -->
     <div id="main-frame">
@@ -42,7 +45,7 @@
                     <label for="game-mode"> Modo de jogo:</label>
                     <select id="game-mode">
                         <option value="vs-computador" selected> Contra computador</option>
-                        <option value="vs-player" disabled> Contra outro jogador</option>
+                        <option value="vs-player"> Contra outro jogador</option>
                     </select>
                 </div>
                 <div class="config-option">
@@ -62,11 +65,11 @@
                 </div>
             </section>
         </aside>
-        
+
         <!-- Área do Jogo -->
         <main id="game-area">
             <!-- Painel de Regras Expansível (Card Único) -->
-             <div id="rules-acc" class="acc-panel hide">
+            <div id="rules-acc" class="acc-panel hide">
                 <div class="acc-header">
                     <h3>Regras Completas do Jogo Tâb</h3>
                     <button id="close-rules" class="acc-close">&times;</button>
@@ -74,34 +77,47 @@
                 <div class="acc-content">
                     <div class="single-rules-card">
                         <h4> Objetivo do Jogo</h4>
-                        <p>O <strong>Tâb</strong> é um jogo tradicional para <strong>dois jogadores</strong>. O objetivo é <strong>eliminar todas as peças do adversário</strong> do tabuleiro através de capturas estratégicas. Ganha quem conseguir que o oponente fique sem peças.</p>
-                        
+                        <p>O <strong>Tâb</strong> é um jogo tradicional para <strong>dois jogadores</strong>. O objetivo
+                            é <strong>eliminar todas as peças do adversário</strong> do tabuleiro através de capturas
+                            estratégicas. Ganha quem conseguir que o oponente fique sem peças.</p>
+
                         <h4>O Tabuleiro</h4>
                         <p>O jogo é jogado num tabuleiro retangular com as seguintes características:</p>
                         <ul>
                             <li><strong>4 linhas horizontais</strong> fixas</li>
-                            <li><strong>Número ímpar de colunas</strong> (pode variar entre 7 e 15, sendo 9 o mais comum)</li>
-                            <li><strong>Movimento em serpentina:</strong> (direita na 4ª linha, esquerda na 3ª, direita na 2ª, esquerda na 1ª)</li>
+                            <li><strong>Número ímpar de colunas</strong> (pode variar entre 7 e 15, sendo 9 o mais
+                                comum)</li>
+                            <li><strong>Movimento em serpentina:</strong> (direita na 4ª linha, esquerda na 3ª, direita
+                                na 2ª, esquerda na 1ª)</li>
                             <li><strong>Uma peça por casa:</strong> Não podem existir duas peças na mesma posição</li>
                         </ul>
 
                         <h4>Configuração Inicial</h4>
-                        <p>Cada jogador tem <strong>n peças</strong> (onde n = número de colunas do tabuleiro). As peças começam fora do tabuleiro e devem ser introduzidas durante o jogo. Cada jogador joga com peças de <strong>cor diferente</strong> do adversário.</p>
-                        
+                        <p>Cada jogador tem <strong>n peças</strong> (onde n = número de colunas do tabuleiro). As peças
+                            começam fora do tabuleiro e devem ser introduzidas durante o jogo. Cada jogador joga com
+                            peças de <strong>cor diferente</strong> do adversário.</p>
+
                         <h4>Sistema de XP</h4>
                         <ul>
-                            <li>Se o jogador jogar na dificuldade <strong>Fácil</strong> deverá receber 10xp, em caso de <strong>vitória</strong>, se <strong>perder</strong> o mesmo perde 5xp.</li>
-                            <li>Se o jogador jogar na dificuldade <strong>Média</strong> deverá receber 20xp, em caso de <strong>vitória</strong>, se <strong>perder</strong> o mesmo perde 10xp.</li>
-                            <li>Se o jogador jogar na dificuldade <strong>Dificil</strong> deverá receber 30xp, em caso de <strong>vitória</strong>, se <strong>perder</strong> o mesmo perde 15xp.</li>
+                            <li>Se o jogador jogar na dificuldade <strong>Fácil</strong> deverá receber 10xp, em caso de
+                                <strong>vitória</strong>, se <strong>perder</strong> o mesmo perde 5xp.
+                            </li>
+                            <li>Se o jogador jogar na dificuldade <strong>Média</strong> deverá receber 20xp, em caso de
+                                <strong>vitória</strong>, se <strong>perder</strong> o mesmo perde 10xp.
+                            </li>
+                            <li>Se o jogador jogar na dificuldade <strong>Dificil</strong> deverá receber 30xp, em caso
+                                de <strong>vitória</strong>, se <strong>perder</strong> o mesmo perde 15xp.</li>
                         </ul>
 
                         <h4>Dado</h4>
-                        <p>Em vez de um dado tradicional, o Tâb usa <strong>4 paus de madeira</strong> com duas faces distintas:</p>
+                        <p>Em vez de um dado tradicional, o Tâb usa <strong>4 paus de madeira</strong> com duas faces
+                            distintas:</p>
                         <ul>
                             <li><strong>Face escura:</strong> Lado arredondado (casca do pau)</li>
                             <li><strong>Face clara:</strong> Lado plano (centro do pau)</li>
                         </ul>
-                        <p><strong>Como lançar:</strong> Os 4 paus são apertados na mão num feixe e depois libertados. Conta-se
+                        <p><strong>Como lançar:</strong> Os 4 paus são apertados na mão num feixe e depois libertados.
+                            Conta-se
                         <ul>
                             <li><strong>0 faces claras → Valor 6 (Sitteh)</strong> - Repete jogada</li>
                             <li><strong>1 face clara → Valor 1 (Tâb)</strong> - Repete jogada</li>
@@ -117,33 +133,41 @@
                             <li>Se sair 4 ou 6, pode repetir até sair 1 para começar a mover</li>
                             <li>As peças entram pela <strong>casa mais à direita da 1ª linha</strong> do jogador</li>
                         </ul>
-                        
+
                         <p><strong>Movimento no tabuleiro:</strong></p>
                         <ul>
-                            <li>Contando as linhas de cima para baixo, ou seja da linha inicial das peças azuis para a linha inicial das peças vermelhas temos as seguintes regras de movimento.</li>
+                            <li>Contando as linhas de cima para baixo, ou seja da linha inicial das peças azuis para a
+                                linha inicial das peças vermelhas temos as seguintes regras de movimento.</li>
                             <li>As peças movem-se <strong>da esquerda para direita na 1ª linha</strong></li>
                             <li><strong>Direita para esquerda na 2ª linha</strong></li>
                             <li><strong>Esquerda para direita na 3ª linha</strong></li>
                             <li><strong>Direita para esquerda na 4ª linha</strong></li>
-                            <li>Ao chegar ao fim de uma linha, a peça <strong>passa automaticamente para a linha seguinte</strong></li>
+                            <li>Ao chegar ao fim de uma linha, a peça <strong>passa automaticamente para a linha
+                                    seguinte</strong></li>
                         </ul>
 
                         <p><strong>Restrições especiais:</strong></p>
                         <ul>
-                            <li>Peças que estão na <strong>linha inicial adversária (Linha 1 para as peças vermelhas e linha 4 para as peças azuis)</strong> só se podem mover se <strong>não houver peças suas na sua linha inicial.</strong></li>
+                            <li>Peças que estão na <strong>linha inicial adversária (Linha 1 para as peças vermelhas e
+                                    linha 4 para as peças azuis)</strong> só se podem mover se <strong>não houver peças
+                                    suas na sua linha inicial.</strong></li>
                             <li>Uma peça <strong>entra apenas uma vez na linha inicial adversária.</strong></li>
                             <li>Peças <strong>não podem regressar à sua linha inicial</strong></li>
                         </ul>
 
                         <h4>Comer Peças</h4>
-                        <p>Se uma peça se mover para uma casa onde está uma <strong>peça adversária</strong>, essa peça adversária é <strong>capturada e removida</strong> permanentemente do tabuleiro.</p>
+                        <p>Se uma peça se mover para uma casa onde está uma <strong>peça adversária</strong>, essa peça
+                            adversária é <strong>capturada e removida</strong> permanentemente do tabuleiro.</p>
 
                         <h4>Estados das Peças</h4>
                         <p>As peças têm diferentes estados visuais para ajudar os jogadores:</p>
                         <ul>
-                            <li><span style="opacity: 1; font-weight: bold;">●</span> <strong>Não movida:</strong> Peça ainda não entrou no tabuleiro (opaca)</li>
-                            <li><span style="opacity: 0.7; font-weight: bold;">●</span> <strong>Em jogo:</strong> Peça já se moveu mas nunca chegou à linha inicial adversária. (semi-transparente)</li>
-                            <li><span style="opacity: 0.5; font-weight: bold;">●</span> <strong>Veterana:</strong> Peça já esteve na linha inicial adversária (mais transparente)</li>
+                            <li><span style="opacity: 1; font-weight: bold;">●</span> <strong>Não movida:</strong> Peça
+                                ainda não entrou no tabuleiro (opaca)</li>
+                            <li><span style="opacity: 0.7; font-weight: bold;">●</span> <strong>Em jogo:</strong> Peça
+                                já se moveu mas nunca chegou à linha inicial adversária. (semi-transparente)</li>
+                            <li><span style="opacity: 0.5; font-weight: bold;">●</span> <strong>Veterana:</strong> Peça
+                                já esteve na linha inicial adversária (mais transparente)</li>
                         </ul>
 
                         <h4>Passagem de Turno</h4>
@@ -153,19 +177,24 @@
                             <li>O valor do dado não permitir nenhuma jogada válida.</li>
                             <li>Não tiver direito a repetir jogada (valores 2 ou 3).</li>
                         </ul>
-                        <p><strong>Não pode</strong> passar a vez se houver uma jogada válida disponível ou se tiver direito a lançar novamente.</p>
+                        <p><strong>Não pode</strong> passar a vez se houver uma jogada válida disponível ou se tiver
+                            direito a lançar novamente.</p>
 
                         <h4>Condições de Vitória</h4>
-                        <p>O jogo termina quando um dos jogadores <strong>fica completamente sem peças</strong> no tabuleiro (todas foram capturadas). O <strong>vencedor é o jogador que ainda tem peças</strong>.</p>
+                        <p>O jogo termina quando um dos jogadores <strong>fica completamente sem peças</strong> no
+                            tabuleiro (todas foram capturadas). O <strong>vencedor é o jogador que ainda tem
+                                peças</strong>.</p>
 
                         <div class="rules-tip">
-                            <strong>Dica Estratégica:</strong> Tenta controlar a linha inicial do adversário para limitar os movimentos do mesmo, mas lembra-te que as tuas peças também ficam limitadas se tiveres peças na tua linha!
+                            <strong>Dica Estratégica:</strong> Tenta controlar a linha inicial do adversário para
+                            limitar os movimentos do mesmo, mas lembra-te que as tuas peças também ficam limitadas se
+                            tiveres peças na tua linha!
                         </div>
                     </div>
                 </div>
-             </div>
+            </div>
 
-             <!-- Tabuleiro -->
+            <!-- Tabuleiro -->
             <section id="board-area">
                 <h2>Tabuleiro</h2>
                 <div id="board-container">
@@ -231,7 +260,7 @@
                         <div class="stick-face light"></div>
                     </div>
                 </div>
-                <div id ="dice-result">
+                <div id="dice-result">
                     <p>Clique para rolar os dados</p>
                     <span id="dice-res">-</span>
                     <br>
@@ -253,9 +282,38 @@
         </aside>
     </div>
 
+    <!-- Auth Modal -->
+    <div id="auth-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 id="modal-title">Autenticação</h2>
+            <form id="auth-form">
+                <div class="form-group">
+                    <label for="auth-nick">Nick:</label>
+                    <input type="text" id="auth-nick" required placeholder="Teu nome de utilizador">
+                </div>
+                <div class="form-group">
+                    <label for="auth-password">Password:</label>
+                    <input type="password" id="auth-password" required placeholder="Tua password secreta">
+                </div>
+                <div class="form-group">
+                    <label for="auth-group">Grupo (para o jogo online):</label>
+                    <input type="number" id="auth-group" required placeholder="Ex: 22" min="1">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="modal-cancel" class="modal-btn btn-cancel">Cancelar</button>
+                    <button type="submit" class="modal-btn btn-confirm">Entrar / Registar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!--Para correr o js-->
+    <script src="network.js"></script>
+    <script src="login.js"></script>
+    <script src="adapter.js"></script>
     <script src="gamelogic.js"></script>
     <script src="minimax.js"></script>
     <script src="main.js"></script>
 </body>
+
 </html>

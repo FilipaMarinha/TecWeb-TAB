@@ -7,7 +7,7 @@ class Dice {
         this.diceRes = document.getElementById('dice-res');
         this.diceNumber = document.getElementById('dice-number');
         this.diceRepeat = document.getElementById('dice-repeat');
-        
+
         this.setupEventListeners();
     }
 
@@ -16,7 +16,7 @@ class Dice {
     }
 
     // Função para lançar os dados
-    rollSticks(gameController = null){
+    rollSticks(gameController = null) {
         // Verificar se o jogo está em andamento
         if (gameController && gameController.gameState !== 'playing') {
             return;
@@ -25,15 +25,15 @@ class Dice {
         if (gameController && gameController.diceRolled) {
             return;
         }
-        
-        let total=0;
-        for (const stick of this.sticks){
+
+        let total = 0;
+        for (const stick of this.sticks) {
 
             /*NOTA: eu acho que estas 4 linhas seguintes depois podem desaparecer
               porque depois quando um jogador joga, isto tem de voltar ao estado inicial (com 2 faces divididas)*/
-            
+
             const existingTotal = stick.querySelector('.stick-total');
-            if (existingTotal){
+            if (existingTotal) {
                 existingTotal.remove();
             }
 
@@ -44,18 +44,18 @@ class Dice {
             totalDiv.classList.add('stick-total');
 
             const face = Math.random();
-            if (face>=0.5){
+            if (face >= 0.5) {
                 total++;
                 totalDiv.classList.add('light');
             }
-            else{
+            else {
                 totalDiv.classList.add('dark');
             }
             stick.appendChild(totalDiv);
         }
-        
+
         const resultado = this.playInfo(total);
-        if(gameController){
+        if (gameController) {
             gameController.onDiceRolled(resultado);
         }
 
@@ -67,11 +67,11 @@ class Dice {
     }
 
     // Função para definir estado da jogada
-    playInfo(total){
+    playInfo(total) {
         let valor;
         let nome;
         let repete;
-        switch(total){
+        switch (total) {
             case 0:
                 valor = 6;
                 nome = 'Sitteh';
@@ -98,13 +98,13 @@ class Dice {
                 repete = "Sim";
                 break;
         }
-        return {valor, nome, repete};
+        return { valor, nome, repete };
     }
 }
 
 // Classe Piece
-class Piece{
-    constructor(player, id){
+class Piece {
+    constructor(player, id) {
         this.player = player;
         this.id = id;
         this.state = 'not-moved';
@@ -112,12 +112,12 @@ class Piece{
         this.col = null;
         this.inRow4 = false; // Para computador
         this.inRow1 = false; // Para humano 
-        this.hasEnteredOpponentLine = false; 
-        this.hasMoved = false; 
+        this.hasEnteredOpponentLine = false;
+        this.hasMoved = false;
     }
 
-    updateState(){
-        if(this.row == null && this.col == null) {
+    updateState() {
+        if (this.row == null && this.col == null) {
             this.state = 'not-moved';
         } else if ((this.player === 'computer' && this.inRow4) || (this.player === 'human' && this.inRow1)) {
             // Veterana: está na linha inicial do adversário
@@ -131,7 +131,7 @@ class Piece{
         }
     }
 
-    moveTo(row, col, isInitialPos = false){
+    moveTo(row, col, isInitialPos = false) {
         this.row = row;
         this.col = col;
 
@@ -158,11 +158,12 @@ class Piece{
         this.updateState();
     }
 }
+window.Piece = Piece;
 
 // CLASSE BOARD 
 class Board {
     constructor() {
-        this.rows = 4; 
+        this.rows = 4;
         this.columns = 9;
         this.board = [];
         this.piecesH = [];
@@ -170,40 +171,40 @@ class Board {
     }
 
     // inicia a matriz do tabuleiro vazia
-    initializeBoard(){
+    initializeBoard() {
         this.board = [];
-        for(let row = 0; row < this.rows; row++){
+        for (let row = 0; row < this.rows; row++) {
             this.board[row] = [];
-            for(let col = 0; col < this.columns; col++){
+            for (let col = 0; col < this.columns; col++) {
                 this.board[row][col] = null;
             }
-            
+
         }
     }
     // Cria as peças iniciais tendo em conta o número de colunas escolhidas
-    createPieces(){
+    createPieces() {
         this.piecesH = [];
         this.piecesC = [];
 
-        for(let i = 0; i < this.columns; i++){
+        for (let i = 0; i < this.columns; i++) {
             const piece = new Piece('human', `human_${i}`);
-            piece.moveTo(3, i, true); 
+            piece.moveTo(3, i, true);
             this.piecesH.push(piece);
             this.board[3][i] = piece;
         }
 
-        for(let i = 0; i < this.columns; i++){
+        for (let i = 0; i < this.columns; i++) {
             const piece = new Piece('computer', `computer_${i}`);
-            piece.moveTo(0, i, true);  
+            piece.moveTo(0, i, true);
             this.piecesC.push(piece);
             this.board[0][i] = piece;
         }
     }
 
     // Renderiza uma peça 
-    renderPiece(piece){
+    renderPiece(piece) {
         const cell = document.querySelector(`[data-row="${piece.row}"][data-col="${piece.col}"]`);
-        
+
         if (cell) {
             const elementp = document.createElement('div');
             elementp.className = `piece ${piece.player} ${piece.state}`;
@@ -213,26 +214,26 @@ class Board {
     }
 
     // Renderiza todas as peças no tabuleiro
-    renderAll(){
+    renderAll() {
         // Limpar todas as peças existentes do tabuleiro
         this.clearAllPieces();
-        
+
         // Peças jogador
-        this.piecesH.forEach(piece =>{
-            if(piece.row != null && piece.col != null){
+        this.piecesH.forEach(piece => {
+            if (piece.row != null && piece.col != null) {
                 this.renderPiece(piece);
             }
         });
         // Peças computador
-        this.piecesC.forEach(piece =>{
-            if(piece.row != null && piece.col != null){
+        this.piecesC.forEach(piece => {
+            if (piece.row != null && piece.col != null) {
                 this.renderPiece(piece);
             }
         });
     }
 
     // Limpa todas as peças do tabuleiro DOM
-    clearAllPieces(){
+    clearAllPieces() {
         const existingPieces = document.querySelectorAll('.piece');
         existingPieces.forEach(piece => piece.remove());
     }
@@ -241,12 +242,12 @@ class Board {
         this.columns = columns;
         this.initializeBoard();
         this.createPieces();
-        
+
         const boardGrid = document.getElementById('board-grid');
         if (!boardGrid) {
             return;
         }
-        
+
         boardGrid.innerHTML = '';
         const cols = columns;
         // Configurar o layout do grid baseado no número de colunas
@@ -259,7 +260,7 @@ class Board {
                 cell.className = 'board-cell';
                 cell.dataset.row = row;
                 cell.dataset.col = col;
-                
+
                 boardGrid.appendChild(cell);
             }
         }
@@ -271,20 +272,20 @@ class Board {
     // Função para aplicar separadores nas coordenadas específicas
     applySeparators(columns) {
         const cells = document.querySelectorAll('.board-cell');
-        
+
         cells.forEach((cell) => {
             const row = parseInt(cell.dataset.row);
             const col = parseInt(cell.dataset.col);
             const lastColumn = columns - 1;
-            
-            if ((row === 3 && col === lastColumn) ||  
-                (row === 2 && col === 0) ||           
-                (row === 2 && col === lastColumn) ||  
-                (row === 1 && col === lastColumn) ||  
-                (row === 1 && col === 0)) {           
-                    
+
+            if ((row === 3 && col === lastColumn) ||
+                (row === 2 && col === 0) ||
+                (row === 2 && col === lastColumn) ||
+                (row === 1 && col === lastColumn) ||
+                (row === 1 && col === 0)) {
+
                 cell.classList.add('separator');
-            }        
+            }
             // Criar e adicionar círculo dentro de cada célula
             const circle = document.createElement('div');
             circle.className = 'circle';
@@ -298,7 +299,7 @@ class GameController {
     constructor() {
         this.board = new Board();
         this.dice = new Dice();
-        this.gameLogic = new GameLogic(this.board); 
+        this.gameLogic = new GameLogic(this.board);
         this.minimax = null; // Instância da IA
         this.currentPlayer = null;
         this.firstP = null;
@@ -306,7 +307,7 @@ class GameController {
         this.diceRolled = false;
         this.diceResult = null;
         this.repeatTurn = false;
-        this.selectedPiece = null; 
+        this.selectedPiece = null;
         this.possibleMoves = []; // Movimentos possíveis para a peça selecionada
         this.isProcessingAI = false; // Evita chamadas duplicadas
         this.setupEventListeners();
@@ -317,7 +318,7 @@ class GameController {
     setupEventListeners() {
         // Event listener para mudança no tamanho do tabuleiro
         document.getElementById('board-size').addEventListener('change', (e) => {
-            if(this.gameState === 'playing'){
+            if (this.gameState === 'playing') {
                 this.updateMessage("Não pode mudar o tamanho do tabuleiro durante o jogo!");
                 return;
             }
@@ -332,7 +333,7 @@ class GameController {
         document.getElementById('reset-btn').addEventListener('click', () => {
             this.resetGame();
         });
-        document.getElementById('forfeit-btn').addEventListener('click', () =>{
+        document.getElementById('forfeit-btn').addEventListener('click', () => {
             this.forfeitGame();
         });
         // Event listeners para as regras
@@ -361,12 +362,71 @@ class GameController {
     }
     // funções para controlar os comando do jogo
     startGame() {
-        if(this.gameState === 'playing'){
+        if (this.gameState === 'playing') {
             this.updateMessage("O jogo já está em andamento!");
             return;
         }
 
         this.getGameConfig();
+
+        // --- MODO ONLINE ---
+        if (this.gameMode === 'vs-player') {
+            // Verificar Login
+            if (!window.Auth || !window.Auth.isLoggedIn()) {
+                alert("Para jogar online tens de fazer login primeiro!");
+                window.Auth.showAuthModal();
+                return;
+            }
+
+            // Preparar dados
+            const creds = window.Auth.getCredentials();
+            const group = parseInt(creds.group);
+            const size = parseInt(document.getElementById('board-size').value);
+
+            if (!group) {
+                alert("Erro: Grupo inválido.");
+                return;
+            }
+
+            // UI de espera
+            this.updateMessage("A contactar servidor... (Aguarde)");
+            document.getElementById('start-btn').disabled = true;
+
+            // Iniciar Adapter Online
+            if (!window.OnlineAdapter) {
+                alert("Erro: OnlineAdapter não carregado.");
+                return;
+            }
+
+            window.OnlineAdapter.startOnline({
+                group: group,
+                nick: creds.nick,
+                password: creds.password,
+                size: size
+            }, (err, data) => {
+                // Callback chamada quando recebemos o primeiro update do servidor
+                if (this.gameState !== 'playing') {
+                    // O jogo começou agora
+                    this.gameState = 'playing';
+                    this.updateButtons();
+                    // this.updateMessage("Adversário encontrado! Jogo Iniciado."); // Deixar o adapter gerir a mensagem
+                }
+                // Nota: O resto (tabuleiro, turno, peças) é gerido pelo syncFromServer do adapter
+            }).then(() => {
+                // O join foi feito com sucesso, agora estamos à espera do Update (matchmaking)
+                this.updateMessage("Na sala de espera... À espera de adversário.");
+            }).catch(err => {
+                this.gameState = 'waiting';
+                this.updateButtons();
+                this.updateMessage("Erro ao entrar no jogo: " + (err.message || err));
+                console.error(err);
+            });
+
+            return; // IMPORTANTE: Não executar a lógica local abaixo
+        }
+
+
+        // --- MODO LOCAL (Vs Computador) ---
         this.currentPlayer = this.firstP;
         this.diceRolled = false;
         this.repeatTurn = false;
@@ -384,7 +444,7 @@ class GameController {
         }
     }
 
-    resetGame(){
+    resetGame() {
         this.gameState = 'waiting';
         // Dar reset ao tabuleiro
         const columns = parseInt(document.getElementById('board-size').value);
@@ -395,9 +455,27 @@ class GameController {
     }
 
     forfeitGame() {
-        if (this.gameState !== 'playing'){
+        if (this.gameState !== 'playing') {
             this.updateMessage("Não há jogo em andamento!");
             return;
+        }
+
+        // Se estiver ONLINE, enviar pedido de leave
+        if (window.OnlineAdapter && window.OnlineAdapter.isOnline) {
+            const creds = window.Auth.getCredentials();
+            // Chamar leave
+            window.Network.leave({
+                nick: creds.nick,
+                password: creds.password,
+                game: window.OnlineAdapter.gameId
+            }).then(() => {
+                this.updateMessage("Desististe do jogo online.");
+                window.OnlineAdapter.stopOnline();
+            }).catch(err => {
+                console.error("Leave error", err);
+                // Força saída local mesmo com erro
+                window.OnlineAdapter.stopOnline();
+            });
         }
 
         this.gameState = 'finished';
@@ -431,14 +509,14 @@ class GameController {
         }
     }
 
-    
+
     // funções para atualizar a interface 
-    updateButtons(){
+    updateButtons() {
         const startBtn = document.getElementById('start-btn');
         const resetBtn = document.getElementById('reset-btn');
         const fftBtn = document.getElementById('forfeit-btn');
 
-        switch(this.gameState){
+        switch (this.gameState) {
             case 'waiting':
                 startBtn.disabled = false;
                 resetBtn.disabled = true;
@@ -457,14 +535,14 @@ class GameController {
         }
     }
 
-    updateMessage(msg){
+    updateMessage(msg) {
         const msgElem = document.getElementById('message');
-        if(msgElem){
+        if (msgElem) {
             msgElem.textContent = msg;
         }
     }
 
-    updateTurn(){
+    updateTurn() {
         let pName = this.currentPlayer === 'human' ? 'Humano' : 'Computador';
         let act = this.diceRolled ? 'escolha uma peça para mover' : 'lance os dados';
         this.updateMessage(`Vez do ${pName}: ${act}`);
@@ -521,11 +599,11 @@ class GameController {
                 const col = parseInt(cell.dataset.col);
                 // Verifica se a casa está nos movimentos possíveis
                 const targetMove = this.possibleMoves.find(move => move.row === row && move.col === col);
-                
+
                 if (targetMove) {
                     const diceValue = this.diceResult.valor;
                     const moveResult = this.gameLogic.movePiece(this.selectedPiece, diceValue, targetMove);
-                    
+
                     if (moveResult.success) {
                         this.clearSelection();
                         this.updateMessage(`Peça movida ${diceValue} casas!`);
@@ -537,10 +615,10 @@ class GameController {
                 }
             }
         }
-        
+
         const pieceId = pieceElement.dataset.pieceId;
         const piece = this.findPieceById(pieceId);
-        
+
         if (!piece) return;
         // Se já existe uma peça selecionada e o utilizador clicou noutra peça do mesmo jogador, muda a seleção para a nova peça
         if (this.selectedPiece && this.selectedPiece.id !== piece.id && piece.player === this.currentPlayer) {
@@ -559,34 +637,34 @@ class GameController {
         // Verificar se a peça pode mover
         const diceValue = this.diceResult.valor;
         const possibleMoves = this.gameLogic.getPossibleMoves(piece, diceValue);
-        
+
         if (possibleMoves.length === 0) {
             this.updateMessage("Esta peça não pode mover com este valor!");
             return;
         }
         this.selectPiece(piece, possibleMoves);
     }
-    
+
     // Processa clique numa casa do tabuleiro
     onCellClick(cell) {
         if (this.gameState !== 'playing') return;
         if (!this.selectedPiece) return; // Só processa se há peça selecionada
-        
+
         const row = parseInt(cell.dataset.row);
         const col = parseInt(cell.dataset.col);
-        
+
         // Verifica se a casa clicada está nos movimentos possíveis
         const targetMove = this.possibleMoves.find(move => move.row === row && move.col === col);
-        
+
         if (!targetMove) {
             this.updateMessage("Movimento inválido! Escolha uma das casas destacadas.");
             return;
         }
-        
+
         // Executar o movimento
         const diceValue = this.diceResult.valor;
         const moveResult = this.gameLogic.movePiece(this.selectedPiece, diceValue, targetMove);
-        
+
         if (moveResult.success) {
             this.clearSelection();
             this.updateMessage(`Peça movida ${diceValue} casas!`);
@@ -595,20 +673,20 @@ class GameController {
             this.updateMessage(moveResult.error);
         }
     }
-    
+
     // Seleciona uma peça e destaca os movimentos possíveis
     selectPiece(piece, possibleMoves) {
-        this.clearSelection(); 
-        
+        this.clearSelection();
+
         this.selectedPiece = piece;
         this.possibleMoves = possibleMoves;
-        
+
         // Destacar a peça selecionada
         const pieceElement = document.querySelector(`[data-piece-id="${piece.id}"]`);
         if (pieceElement && pieceElement.parentElement) {
             pieceElement.parentElement.classList.add('selected');
         }
-        
+
         // Destacar as casas possíveis
         possibleMoves.forEach(move => {
             const cell = document.querySelector(`[data-row="${move.row}"][data-col="${move.col}"]`);
@@ -616,22 +694,22 @@ class GameController {
                 cell.classList.add('possible');
             }
         });
-        
+
         this.updateMessage("Escolha a casa de destino para mover a peça.");
     }
-    
+
     // Limpa a seleção atual
     clearSelection() {
         // Remove destaque das peças
         document.querySelectorAll('.board-cell.selected').forEach(cell => {
             cell.classList.remove('selected');
         });
-        
+
         // Remove destaque das casas possíveis
         document.querySelectorAll('.board-cell.possible').forEach(cell => {
             cell.classList.remove('possible');
         });
-        
+
         this.selectedPiece = null;
         this.possibleMoves = [];
     }
@@ -676,7 +754,7 @@ class GameController {
 
                     // Guardar resultado para o jogador local "admin"
                     const delta = humanWon ? { vitorias: 1, derrotas: 0, xp: xpWin }
-                                            : { vitorias: 0, derrotas: 1, xp: xpLose };
+                        : { vitorias: 0, derrotas: 1, xp: xpLose };
                     saveLocalResult(delta);
                     renderLocalLeaderboard();
                 }
@@ -703,7 +781,7 @@ class GameController {
         this.diceRolled = false;
         this.repeatTurn = false;
         this.diceResult = null;
-        
+
         this.updateTurnMessage();
 
         // Se for o turno do computador, rolar e jogar automaticamente
@@ -715,13 +793,13 @@ class GameController {
     updateTurnMessage() {
         const playerName = this.currentPlayer === 'human' ? 'Humano' : 'Computador';
         const action = this.diceRolled ? 'escolha uma peça para mover' : 'lance os dados';
-        
+
         this.updateMessage(`Turno do ${playerName}: ${action}`);
     }
     // Verifica se jogador tem movimentos válidos
     hasValidMoves() {
         if (!this.diceResult) return false;
-        
+
         const validPieces = this.gameLogic.validPieces(this.currentPlayer, this.diceResult.valor);
         return validPieces.length > 0;
     }
@@ -732,11 +810,25 @@ class GameController {
         this.repeatTurn = (diceResult.repete === "Sim");
 
         this.updateTurnMessage();
-        // Verificar se tem movimentos válidos - se não tiver, passa o turno automaticamente
-        if(!this.hasValidMoves()){
-            this.updateMessage(`${this.currentPlayer === 'human' ? 'Humano' : 'Computador'} não tem movimentos válidos. Passando turno...`);
-            setTimeout(() => this.switchTurn(), 1500);
-            return;
+        // Verificar se tem movimentos válidos
+        if (!this.hasValidMoves()) {
+            // Se não tiver movimentos válidos e o dado NÃO repete, passa o turno
+            if (!this.repeatTurn) {
+                this.updateMessage(`${this.currentPlayer === 'human' ? 'Humano' : 'Computador'} não tem movimentos válidos. Passando turno...`);
+                setTimeout(() => this.switchTurn(), 1500);
+                return;
+            } else {
+                // Se não tiver movimentos válidos mas o dado repete, mantém o turno e permite lançar novamente
+                this.updateMessage(`${this.currentPlayer === 'human' ? 'Humano' : 'Computador'} não tem movimentos válidos. Pode lançar os dados novamente!`);
+                this.diceRolled = false;
+                this.diceResult = null;
+                this.updateTurnMessage();
+                // Se for o computador, lança os dados novamente automaticamente
+                if (this.currentPlayer === 'computer') {
+                    setTimeout(() => this.dice.rollSticks(this), 1500);
+                }
+                return;
+            }
         }
 
         // Se for o computador, após rolar os dados, escolher e executar a jogada
@@ -833,7 +925,7 @@ function saveLocalResult(result) {
         found.derrotas += result.derrotas || 0;
         found.xp += result.xp || 0;
     } else {
-        data.push({ player: 'admin', vitorias: result.vitorias||0, derrotas: result.derrotas||0, xp: result.xp||0 });
+        data.push({ player: 'admin', vitorias: result.vitorias || 0, derrotas: result.derrotas || 0, xp: result.xp || 0 });
     }
     localStorage.setItem('tab_leaderboard', JSON.stringify(data));
 }
@@ -853,7 +945,7 @@ function renderLocalLeaderboard() {
     const data = loadLocalLeaderboard();
     tbody.innerHTML = '';
     // Ordena por XP desc
-    data.sort((a,b) => b.xp - a.xp);
+    data.sort((a, b) => b.xp - a.xp);
     data.forEach((row, idx) => {
         const total = (row.vitorias || 0) + (row.derrotas || 0);
         const empates = 0;
@@ -877,5 +969,5 @@ function renderLocalLeaderboard() {
 document.addEventListener('DOMContentLoaded', () => {
     window.gameController = new GameController();
     // Renderiza leaderboard local ao carregar
-    try { renderLocalLeaderboard(); } catch {}
+    try { renderLocalLeaderboard(); } catch { }
 });
