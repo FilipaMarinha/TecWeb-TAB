@@ -970,4 +970,11 @@ document.addEventListener('DOMContentLoaded', () => {
     window.gameController = new GameController();
     // Renderiza leaderboard local ao carregar
     try { renderLocalLeaderboard(); } catch { }
+
+
+
+    // Initialize Auth UI
+    if (window.Auth && window.Auth.updateIdentificationUI) {
+        window.Auth.updateIdentificationUI();
+    }
 });

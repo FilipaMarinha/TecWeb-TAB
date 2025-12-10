@@ -49,6 +49,7 @@
       logoutBtn.id = 'logout-button';
       logoutBtn.className = 'auth-button';
       logoutBtn.textContent = 'Logout';
+      logoutBtn.style.marginLeft = '5px';
 
       logoutBtn.addEventListener('click', (e) => {
         e.preventDefault();

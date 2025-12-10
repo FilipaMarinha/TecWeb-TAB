@@ -1,9 +1,3 @@
-// network.js
-// Pequena camada global para comunicar com o servidor do enunciado.
-// Usa fetch para POST JSON e EventSource para /update SSE.
-// Inclui: register, join, leave, roll, notify, pass, startUpdateListener, stopUpdateListener
-// Uso (ex.): Network.join({group, nick, password, size}).then(resp => ...);
-// Este ficheiro assume ser carregado antes do onlineAdapter.js e depois antes do main.js
 (function (global) {
   const SERVER_BASE = "http://twserver.alunos.dcc.fc.up.pt:8008";
 
@@ -48,7 +42,7 @@
   }
 
   function notify({ nick, password, game, move }) {
-    return post("notify", { nick, password, game, move });
+    return post("notify", { nick, password, game, move, cell: move });
   }
 
   function passTurn({ nick, password, game }) {
@@ -61,7 +55,6 @@
     const url = `${SERVER_BASE}/update?game=${encodeURIComponent(game)}&nick=${encodeURIComponent(nick)}`;
     es = new EventSource(url);
     es.onmessage = function (e) {
-      console.log("[SSE Raw]", e.data); // DEBUG
       try {
         const data = JSON.parse(e.data);
         onMessage && onMessage(data);
@@ -83,10 +76,6 @@
     }
   }
 
-  function ranking({group, size}){
-    return post("ranking", {group, size});
-  }
-
   global.Network = {
     SERVER_BASE,
     register,
@@ -96,7 +85,6 @@
     notify,
     passTurn,
     startUpdateListener,
-    stopUpdateListener,
-    ranking
+    stopUpdateListener
   };
 })(window);

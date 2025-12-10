@@ -429,9 +429,7 @@ h2 {
     margin-bottom: 18px;
     display: grid;
     column-gap: 2px;
-    /* Restaura o espaçamento padrão entre as colunas */
     row-gap: 0;
-    /* Remove o espaçamento entre as linhas para juntar os quadrados de linhas diferentes */
     background: #8B0000;
     border-radius: 8px;
     min-height: 300px;
@@ -439,17 +437,11 @@ h2 {
     justify-self: center;
     max-width: 100%;
     border: 6px solid #8B0000;
-    /* Revertendo ao estilo original */
     position: relative;
     border-width: calc(6px + 0.5vw);
-    /* Ajusta dinamicamente o tamanho do border */
     grid-auto-rows: auto;
     height: auto;
     user-select: none;
-    /* Previne seleção de texto no tabuleiro */
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
 }
 
 .board-cell {
@@ -601,16 +593,11 @@ h2 {
 
 .ranking-panel {
     background: transparent;
-    /* Remove o background já que a seção pai tem background */
     border-radius: 0;
-    /* Remove border-radius desnecessário */
     box-shadow: none;
-    /* Remove shadow já que a seção pai tem shadow */
     margin: 0;
-    /* Remove margin desnecessário */
     max-width: 100%;
     padding: 0;
-    /* Remove padding já que a seção pai tem padding */
 }
 
 .panel-header h2 {
