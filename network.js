@@ -83,6 +83,10 @@
     }
   }
 
+  function ranking({group, size}){
+    return post("ranking", {group, size});
+  }
+
   global.Network = {
     SERVER_BASE,
     register,
@@ -92,6 +96,7 @@
     notify,
     passTurn,
     startUpdateListener,
-    stopUpdateListener
+    stopUpdateListener,
+    ranking
   };
 })(window);
