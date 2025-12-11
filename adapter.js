@@ -1,15 +1,3 @@
-// onlineAdapter.js
-// Integrador do modo online com o jogo local já existente (main.js).
-// Usa Network (network.js) e manipula window.gameController.
-// Comportamento:
-//  - startOnline({group,nick,password,size})
-//  - stopOnline()
-//  - monkeypatch do dice.rollSticks, onPieceClick, onCellClick para enviar pedidos ao servidor
-//  - recebe updates SSE e reconstrói o board local a partir de data.pieces
-// Atenção sobre mapeamento de índices:
-//  - por defeito usa a conversão fornecida pelo GameLogic do repositório (coordenadas / coordenadasHuman / position / positionHuman).
-//  - se o servidor tiver outra convenção (posição 0 = bottom-right) podes ajustar mappingMode = 'server' nas opções abaixo.
-//  - Testa com dois browsers e alterna mappingMode se necessário.
 (function (global) {
   if (!global.Network) {
     console.warn("Network não encontrado. Carrega network.js antes de onlineAdapter.js");
@@ -24,19 +12,17 @@
     gameId: null,
     mappingMode: 'gamelogic', // 'gamelogic' (default) ou 'server' (alternativa se servidor usar convenção diferente)
     saved: {}, // guarda funções originais para restaurar
-    serverState: null
+    serverState: null,
+    lastTurnOwner: null
   };
 
   // Helpers de mapeamento entre índice linear do server e row/col do board
   function indexToCoordsByGamelogic(index, cols, initialIsMe) {
-    // Usa as funções de gamelogic já presentes no projecto
     const gl = window.gameController && window.gameController.gameLogic;
     if (!gl) return null;
     if (initialIsMe) {
-      // Se a initial do servidor é o nosso nick, usa a perspectiva "human" do gamelogic
       return gl.coordenadasHuman(index, cols);
     } else {
-      // Caso contrário, assume que o índice está orientado para o adversário => usa coordenadas padrão
       return gl.coordenadas(index, cols);
     }
   }
@@ -51,21 +37,13 @@
     }
   }
 
-  // Versão alternativa se o servidor usar a convenção "posição 0 = canto inferior-direito do jogador inicial".
-  // Implementação: percorre as 4 filas (da perspetiva do jogador inicial) e gera índice linear.
   function indexToCoordsByServer(index, cols, initialIsMe) {
-    // Se initialIsMe === true, a variação é directamente do ponto de vista humano
-    // Na convenção do enunciado: pos0 é bottom-right (col = cols-1) e vai varrendo a tabuleiro em serpentina.
-    // Vamos construir array de coordenadas do tabuleiro segundo essa ordem e indexar.
     const coordsList = [];
-    // Construir a ordem das fileiras da perspetiva do jogador inicial: bottom (row 3), row2, row1, top (row0)
     const humanRows = [3, 2, 1, 0];
     for (let hr = 0; hr < 4; hr++) {
       const r = humanRows[hr];
-      // Define direção: para a ornamentação do enunciado, assumimos bottom-row varre direita->esquerda (canto inferior-direito é primeiro)
-      // Para manter consistência com a ideia "pos0=bottom-right", varremos bottom row right->left, next row left->right, e assim sucessivamente (serpentina)
-      const rowIndex = hr; // 0..3 como "linha do jogador inicial"
-      const goRightToLeft = (rowIndex % 2 === 0); // 0 -> true (r -> l), 1 -> false, etc.
+      const rowIndex = hr;
+      const goRightToLeft = (rowIndex % 2 === 0);
       if (goRightToLeft) {
         for (let c = cols - 1; c >= 0; c--) coordsList.push({ row: r, col: c });
       } else {
@@ -73,13 +51,10 @@
       }
     }
     if (index < 0 || index >= coordsList.length) return null;
-    // coordsList gives as visto pelo jogador inicial; se initialIsMe true então sao as coordenadas reais; se false, o jogador inicial é o adversário;
-    // mas as coordsList já estão dadas em coordenadas reais do tabuleiro (rows 0..3), porque escolhemos rows reais acima.
     return coordsList[index];
   }
 
   function coordsToIndexByServer(row, col, cols, initialIsMe) {
-    // Inverte indexToCoordsByServer: gerar coordsList e procurar índice
     const coordsList = [];
     const humanRows = [3, 2, 1, 0];
     for (let hr = 0; hr < 4; hr++) {
@@ -115,11 +90,10 @@
       return;
     }
 
-    adapter.serverState = data;
+    adapter.serverState = Object.assign({}, adapter.serverState || {}, data);
 
     const size = (data.pieces && data.pieces.length) / 4 || gc.board.columns;
     const cols = size;
-    // Atualizar o tamanho do tabuleiro local se necessário
     if (gc.board.columns !== cols || gc.board.rows !== 4) {
       gc.board.generateBoard(cols);
     } else {
@@ -129,19 +103,16 @@
       gc.board.piecesC = [];
     }
 
-    // Identificar cores dos jogadores (players: { nick1: "Blue", nick2: "Red" })
-    // Identificar cores dos jogadores (players: { nick1: "Blue", nick2: "Red" })
     const playersMap = data.players || {};
-    const myColor = playersMap[adapter.myNick]; // undefined if not present yet
+    const myColor = playersMap[adapter.myNick];
 
-    // Safety check: Don't wipe board if pieces data is missing
     if (!data.pieces || !Array.isArray(data.pieces)) {
       console.warn("Update sem 'pieces' válido. Ignorando sync do tabuleiro.");
     } else {
       // Map each piece from server.pieces into local Piece instances
       (data.pieces || []).forEach((cellObj, idx) => {
         if (!cellObj) return;
-        const coords = indexToCoords(idx, cols, data.initial === adapter.myNick);
+        const coords = indexToCoords(idx, cols, adapter.serverState.initial === adapter.myNick);
         // DEBUG: Log se falhar conversão
         if (!coords) {
           // console.warn(`Idx ${idx} -> coords null (cols=${cols}, initial=${data.initial}, me=${adapter.myNick})`);
@@ -157,9 +128,9 @@
         } else {
           // fallback: heuristic pela posição inicial: indices 0..size-1 pertencem ao jogador initial
           if (idx >= 0 && idx < cols) {
-            ownerIsMe = (data.initial === adapter.myNick);
+            ownerIsMe = (adapter.serverState.initial === adapter.myNick);
           } else if (idx >= 3 * cols && idx < 4 * cols) {
-            ownerIsMe = (data.initial !== adapter.myNick);
+            ownerIsMe = (adapter.serverState.initial !== adapter.myNick);
           } else {
             // Unknown, guess by color: Blue -> computer? fallback to human=false
             ownerIsMe = false;
@@ -189,8 +160,17 @@
     } // end else
 
     // Atualizar estado do controlador (turn/dice/mustPass/step/selected/winner)
-    if (data.turn) {
-      gc.currentPlayer = (data.turn === adapter.myNick) ? 'human' : 'computer';
+    if (adapter.serverState.turn) {
+      const oldTurn = gc.currentPlayer === 'human' ? adapter.myNick : (gc.currentPlayer === 'computer' ? 'opponent' : null);
+      // Determine new turn
+      gc.currentPlayer = (adapter.serverState.turn === adapter.myNick) ? 'human' : 'computer';
+
+      if (data.turn && data.turn !== oldTurn && data.turn !== (oldTurn === 'opponent' ? 'computer' : oldTurn)) {
+        if (data.mustPass === undefined) {
+          adapter.serverState.mustPass = false;
+          gc.mustPass = false;
+        }
+      }
     }
     // Dice: se data.dice === null então ainda não lançado; senão contém value, stickValues, keepPlaying
     if (data.dice) {
@@ -198,6 +178,12 @@
       gc.diceRolled = true;
       gc.diceResult = { valor: data.dice.value, nome: '', repete: data.dice.keepPlaying ? "Sim" : "Não", stickValues: data.dice.stickValues };
       gc.repeatTurn = !!data.dice.keepPlaying;
+
+      // CORREÇÃO Re-roll: Se tem repeatTurn mas não tem movimentos válidos, permitir rolar de novo.
+      if (gc.repeatTurn && !gc.hasValidMoves()) {
+        gc.diceRolled = false;
+      }
+
       // Mostrar no painel do dado
       try {
         const diceRes = document.getElementById('dice-res');
@@ -206,7 +192,7 @@
         if (diceRes) diceRes.innerHTML = `<strong>Nome: </strong>${gc.diceResult.nome || '-'}`;
         if (diceNumber) diceNumber.innerHTML = `<strong>Número de casas: </strong>${gc.diceResult.valor || '-'}`;
         if (diceRepeat) diceRepeat.innerHTML = `<strong>Repete: </strong>${gc.diceResult.repete || '-'}`;
-      } catch (e) { /* ignore */ }
+      } catch (e) { }
     } else {
       gc.diceRolled = false;
       gc.diceResult = null;
@@ -220,9 +206,11 @@
     }
 
     // mustPass
-    gc.mustPass = !!data.mustPass;
+    if (data.mustPass !== undefined) gc.mustPass = !!data.mustPass;
+    else gc.mustPass = !!adapter.serverState.mustPass;
+
     // Auto-Pass Logic
-    if (gc.mustPass && data.turn === adapter.myNick) {
+    if (gc.mustPass && adapter.serverState.turn === adapter.myNick) {
       // Pequeno delay para o utilizador ver o resultado do dado
       setTimeout(() => {
         // Verificar se ainda é preciso passar (pode ter mudado entretanto)
@@ -237,39 +225,73 @@
     // Limpar destaques antigos
     document.querySelectorAll('.board-cell.selected').forEach(c => c.classList.remove('selected'));
     document.querySelectorAll('.board-cell.possible').forEach(c => c.classList.remove('possible'));
-    if (Array.isArray(data.selected)) {
-      data.selected.forEach(idx => {
-        const coords = indexToCoords(idx, cols, data.initial === adapter.myNick);
-        if (!coords) return;
+
+    // Highlight Logic: Keep origin selected if step is 'to'
+    if (adapter.selectedIdx !== null && adapter.serverState.step === 'to') {
+      const coords = indexToCoords(adapter.selectedIdx, cols, adapter.serverState.initial === adapter.myNick);
+      if (coords) {
         const cell = document.querySelector(`[data-row="${coords.row}"][data-col="${coords.col}"]`);
-        if (cell) cell.classList.add(data.step === 'from' ? 'selected' : 'possible');
-      });
+        if (cell) cell.classList.add('selected');
+      }
+    } else if (adapter.serverState.step !== 'to') {
+      adapter.selectedIdx = null; // Reset selection if phase changed (e.g. back to start or capture)
+    }
+
+    if (Array.isArray(data.selected)) {
+      // VISUAL FIX: Apenas mostrar highlights se estivermos na fase de escolher destino ou capturar.
+      // Se estivermos em 'from', não queremos o tabuleiro todo aceso (estilo local).
+      if (data.step !== 'from') {
+        data.selected.forEach(idx => {
+          const coords = indexToCoords(idx, cols, adapter.serverState.initial === adapter.myNick);
+          if (!coords) return;
+          const cell = document.querySelector(`[data-row="${coords.row}"][data-col="${coords.col}"]`);
+          if (cell) cell.classList.add('possible'); // Usar 'possible' (Amarelo) para destinos/capturas
+        });
+      }
     }
 
     // MESSAGING LOGIC IMPROVED
-    console.log(`[Turn Debug] Me="${adapter.myNick}" Turn="${data.turn}" Equal?=${data.turn === adapter.myNick}`); // DEBUG
     let turnMsg = "";
-    if (data.turn === adapter.myNick) {
-      turnMsg = "SUA VEZ! ";
-    } else {
-      turnMsg = `Vez de ${data.turn}: `;
-    }
-
     let actionMsg = "";
-    if (gc.mustPass && data.turn === adapter.myNick) {
-      actionMsg = "Sem jogadas. A passar a vez automaticamente...";
-    } else if (data.step) {
-      if (data.step === 'from') actionMsg = "Escolha peça a mover";
-      else if (data.step === 'to') actionMsg = "Escolha destino";
-      else if (data.step === 'take') actionMsg = "Escolha peça a capturar";
-      else actionMsg = data.step;
+
+    // Use serverState to ensure stability against partial updates
+    const currentTurn = adapter.serverState.turn;
+    const currentStep = adapter.serverState.step;
+    const isMyTurn = (currentTurn === adapter.myNick);
+    // Verificar se é continuação do turno (re-roll)
+    // Se a vez anterior já era minha e continua a ser, então é um re-roll.
+    const isContinuation = (adapter.lastTurnOwner === adapter.myNick && currentTurn === adapter.myNick);
+
+    if (isMyTurn) {
+      if (gc.mustPass) {
+        actionMsg = "Sem jogadas. A passar a vez automaticamente...";
+      } else if (currentStep === 'to') {
+        actionMsg = "SUA VEZ! Escolha o destino";
+      } else if (currentStep === 'take') {
+        actionMsg = "SUA VEZ! Escolha peça a capturar";
+      } else {
+        // step is 'from' or undefined
+        if (!gc.diceRolled) {
+          // Se repeatTurn estiver true (bloqueado com 4/6), forçamos msg de re-roll
+          // OU se for continuação de turno (ex: correu 1 e agora joga de novo)
+          if ((gc.diceResult && gc.repeatTurn) || isContinuation) {
+            actionMsg = "Lance novamente!";
+          } else {
+            actionMsg = "SUA VEZ! Lance os dados";
+          }
+        } else {
+          actionMsg = "SUA VEZ! Escolha uma peça para mover";
+        }
+      }
+      gc.updateMessage(actionMsg);
     } else {
-      // Se não há step explícito, inferir pelo dice
-      if (!data.dice) actionMsg = "Lance os dados";
-      else actionMsg = "Faça a jogada";
+      gc.updateMessage(`Vez de ${currentTurn}!`);
     }
 
-    gc.updateMessage(`${turnMsg}${actionMsg}`);
+    // Atualizar lastTurnOwner para a próxima execução
+    if (adapter.serverState.turn) {
+      adapter.lastTurnOwner = adapter.serverState.turn;
+    }
 
     // winner: se definido, terminar
     if (data.winner) {
@@ -323,8 +345,10 @@
         return;
       }
       // Se já existiu dice no server, não pode rolar novamente localmente
-      if (serverState.dice) {
-        gc.updateMessage && gc.updateMessage("Já foi lançado este turno (servidor).");
+      // Se o controlador diz que já há dado rolado, não rolar de novo.
+      // Usar gc.diceRolled é mais seguro que serverState.dice porque serverState pode ter lixo de merges anteriores.
+      if (gc.diceRolled) {
+        gc.updateMessage && gc.updateMessage("Já existe um resultado de dado ativo.");
         return;
       }
       // Enviar pedido roll ao servidor
@@ -347,10 +371,15 @@
       const cols = gc.board.columns;
       const initialIsMe = (adapter.serverState && adapter.serverState.initial === adapter.myNick);
       const idx = coordsToIndex(row, col, cols, initialIsMe);
-      if (idx < 0) {
+
+      if (idx < 0 || idx === undefined || idx === null) {
         gc.updateMessage("Não foi possível converter posição para servidor.");
         return;
       }
+
+      // Store selection locally
+      adapter.selectedIdx = idx;
+
       Network.notify({ nick: adapter.myNick, password: adapter.myPassword, game: adapter.gameId, move: idx })
         .catch(err => {
           console.error("Notify erro:", err);

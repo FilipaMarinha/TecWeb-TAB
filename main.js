@@ -414,7 +414,11 @@ class GameController {
                 // Nota: O resto (tabuleiro, turno, peças) é gerido pelo syncFromServer do adapter
             }).then(() => {
                 // O join foi feito com sucesso, agora estamos à espera do Update (matchmaking)
-                this.updateMessage("Na sala de espera... À espera de adversário.");
+                // Se já estivermos 'playing' (callback SSE foi rápido), não mostrar mensagem de espera
+                console.log(`[Main DEBUG] StartOnline .then(). GameState=${this.gameState}`);
+                if (this.gameState !== 'playing') {
+                    this.updateMessage("Na sala de espera... À espera de adversário.");
+                }
             }).catch(err => {
                 this.gameState = 'waiting';
                 this.updateButtons();
